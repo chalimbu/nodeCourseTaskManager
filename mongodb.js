@@ -16,12 +16,26 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true }, (error, client) =>
     }
     const db = client.db(databaseName)
 
-    db.collection('users').find({ age: 27 }).toArray((error, count) => {
-        console.log(count)
+    db.collection('users').findOne({
+            _id: new ObjectID('5cdf687c976a2d2b18e66b5a')
+        },
+        (error, resul) => {
+            if (error) {
+                return console.log(error)
+            }
+            console.log(resul)
+        })
+
+    db.collection('task').find({ status: true }).toArray((error, documents) => {
+        if (error) {
+            return console.log(error)
+        }
+        console.log(documents)
     })
 
-    db.collection('users').find({ age: 27 }).count((error, count) => {
-        console.log(count)
-    })
+
+    // db.collection('users').find({ age: 27 }).count((error, count) => {
+    //     console.log(count)
+    // })
 
 })
