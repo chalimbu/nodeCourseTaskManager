@@ -34,16 +34,12 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true }, (error, client) =>
     }
     const db = client.db(databaseName)
 
-    db.collection('task').updateMany({
-
-    }, {
-        $set: {
-            status: true
-        }
+    db.collection('task').deleteOne({
+        description: 'the task 1'
     }).then((resolve) => {
         console.log(resolve)
-    }).catch((reject) => {
-        console.log(reject)
+    }).catch((error) => {
+        console.log(error)
     })
 
 })
