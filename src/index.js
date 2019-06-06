@@ -7,7 +7,7 @@ const taskRouter = require('./routers/task')
 const app = express()
 const port = process.env.PORT || 3000 //para despliegue en heroku
 
-//midleware must be call before other app.use
+
 
 
 
@@ -20,22 +20,29 @@ app.use(taskRouter)
 //200 correct, 400 wrong for user(providing invalid data), 500 wrong because of server
 
 //post to create, get to recibe information
+const multer = require('multer')
+const upload = multer({
+    dest: 'images/',
+    limits: {
+        fileSize: 1000000 //1 megabyte, 500 if to big
+    },
+    fileFilter(req, file, cb) {
+        console.log(file.originalname)
+        if (!file.originalname.match(/\.(docx)$/)) {
+            return cb(new Error('Plis upload doc'))
+        }
+        cb(undefined, true)
+            //cb(new Error('file must be document'))
+            //cb(undefined,true)
+    }
+})
+
+app.post('/upload', upload.single('upload'), (req, res) => {
+    res.send()
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message })
+})
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
-
-// const Task = require('./models/task')
-// const User = require('./models/user')
-
-// const main = async() => {
-//     // const task = await Task.findById('5cf8fcdfe0c8543bd05fbedc')
-//     // await task.populate('owner').execPopulate()
-//     // console.log(task.owner)
-
-//     const user = await User.findById('5cf8fc440ce1ba3c44e7f045')
-//     await user.populate('tasks').execPopulate()
-//     console.log(user.tasks)
-// }
-
-// main()

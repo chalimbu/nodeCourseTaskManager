@@ -1,8 +1,24 @@
 const express = require('express')
+const multer = require('multer')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
-const router = new express.Router()
 
+const router = new express.Router()
+const upload = multer({
+    //dest: 'avatars/',
+    limits: {
+        fileSize: 1000000 //1 megabyte, 500 if to big
+    },
+    fileFilter(req, file, cb) {
+        console.log(file.originalname)
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return cb(new Error('Plis upload a image in format jpg,jpeg,png'))
+        }
+        cb(undefined, true)
+            //cb(new Error('file must be document'))
+            //cb(undefined,true)
+    }
+})
 
 router.post('/users', async(req, res) => {
     const user = new User(req.body)
@@ -50,6 +66,13 @@ router.post('/users/logoutAll', auth, async(req, res) => {
     }
 })
 
+router.post('/users/me/avatar', auth, upload.single('avatar'), async(req, res) => {
+    req.user.avatar = req.file.buffer
+    await req.user.save()
+    res.send()
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message })
+})
 
 router.get('/users/me', auth, async(req, res) => {
     res.send(req.user)
@@ -77,6 +100,16 @@ router.delete('/users/me', auth, async(req, res) => {
     try {
         await req.user.remove()
         res.send(req.user)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.delete('/users/me/avatar', auth, async(req, res) => {
+    try {
+        req.user.avatar = undefined
+        await req.user.save()
+        res.send()
     } catch (e) {
         res.status(500).send()
     }
