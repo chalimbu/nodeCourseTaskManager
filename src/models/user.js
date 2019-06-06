@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
         name: {
@@ -39,9 +40,16 @@ const userSchema = new mongoose.Schema({
                     throw new Error('Password must no contain password')
                 }
             }
-        }
+        },
+        tokens: [{
+            token: {
+                type: String,
+                required: true
+            }
+        }]
     })
     //User.findByCredential
+
 userSchema.statics.findByCredential = async(email, password) => {
 
     const user = await User.findOne({ email })
@@ -60,12 +68,20 @@ userSchema.statics.findByCredential = async(email, password) => {
 
 //must be a normal function, hash the plain password
 userSchema.pre('save', async function(next) {
+        const user = this
+        if (user.isModified('password')) {
+            user.password = await bcrypt.hash(user.password, 8)
+        }
+        next() //indica qeu la funcion termino, antes de guardar
+    })
+    //statics access on the model, methond on a specific user
+userSchema.methods.generateAuthToken = async function() {
     const user = this
-    if (user.isModified('password')) {
-        user.password = await bcrypt.hash(user.password, 8)
-    }
-    next() //indica qeu la funcion termino, antes de guardar
-})
+    const token = jwt.sign({ _id: user._id.toString() }, 'oneStringtoAuthofSebas')
+    user.tokens = user.tokens.concat({ token })
+    await user.save()
+    return token
+}
 
 const User = mongoose.model('User', userSchema)
 
