@@ -8,17 +8,8 @@ const app = express()
 const port = process.env.PORT || 3000 //para despliegue en heroku
 
 //midleware must be call before other app.use
-// app.use((req, res, next) => {
-//     //console.log(req.method, req.path)
-//     if (req.method === 'GET') {
-//         res.status(500).send('Get request are disable')
-//     } else {
-//         next()
-//     }
-// })
-app.use((req, res, next) => {
-    res.status(503).send('Server in maintenance try later')
-})
+
+
 
 app.use(express.json())
 app.use(userRouter)
@@ -33,13 +24,3 @@ app.use(taskRouter)
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
-
-const jwt = require('jsonwebtoken')
-
-const myFunction = async() => {
-    const autentificacion_toke = jwt.sign({ _id: 'abc123' }, 'anysrieoofcar0a', { expiresIn: '7 days' })
-    console.log(autentificacion_toke)
-    const data = jwt.verify(autentificacion_toke, 'anysrieoofcar0a')
-    console.log(data)
-}
-myFunction()
