@@ -4,7 +4,7 @@ const userRouter = require('./routers/user')
 const taskRouter = require('./routers/task')
 
 const app = express()
-const port = process.env.PORT || 3000 //para despliegue en heroku
+const port = process.env.PORT //para despliegue en heroku
 
 app.use(express.json())
 app.use(userRouter)
